@@ -80,7 +80,7 @@ def start_noise_for_account():
                     stoppable_sleep(random.uniform(5, 10), lambda: keep_running)
                 else:
                     print("!!!!!!! NO results")
-                    driver.save_screenshot(f"error_google_{int(time.time())}.png")
+                    #driver.save_screenshot(f"error_google_{int(time.time())}.png")
 
             except Exception as e:
                 print(f"    ! Ошибка: {e}")
