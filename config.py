@@ -3,6 +3,8 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ACCOUNTS_DIR = os.path.join(BASE_DIR, "infra", "accounts")
 
+NOISE_HEADLESS = True
+
 NOISE_TOPICS = [
     # Быт, рецепты и садоводство
     "как приготовить лазанью", "лучшие пляжи мира", "почему коты мурчат",

@@ -7,6 +7,7 @@ from selenium.webdriver.common.keys import Keys
 from .driver import get_driver
 from .account_manager import get_account
 from .query_selector import get_query
+from config import NOISE_HEADLESS
 
 def start_noise_for_account():
     selected_name = get_account()
@@ -14,8 +15,7 @@ def start_noise_for_account():
         return
 
     print(f"\n[ШУМ] Запуск '{selected_name}' в ФОНОВОМ режиме...")
-    #driver = get_driver(selected_name, headless=True)
-    driver = get_driver(selected_name, headless=False)
+    driver = get_driver(selected_name, headless=NOISE_HEADLESS)
 
     try:
         print("Типо шум")
@@ -45,7 +45,7 @@ def start_noise_for_account():
                 if results:
                     print("Start to try click!")
                     #print("result = ", results)
-                    while True:
+                    for _ in range(5):
                         try:
                             #!!!!!!!!!!!
                             random.choice(results).click()
