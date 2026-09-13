@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from .driver import get_driver
 from config import ACCOUNTS_DIR
@@ -47,3 +48,41 @@ def add_account():
     finally:
         driver.quit()
         print(f"Аккаунт '{name}' успешно добавлен.")
+
+
+def remove_account():
+    """Удаление существующего профиля"""
+    accounts = list_accounts()
+
+    if not accounts:
+        print("\n[!] Нет добавленных аккаунтов для удаления.")
+        return
+
+    print("\nДоступные аккаунты для удаления:")
+    for i, name in enumerate(accounts, 1):
+        print(f"{i}. {name}")
+
+    try:
+        choice = input("\nВыберите номер аккаунта для удаления (или 'q' для отмены): ").strip()
+        if choice.lower() == 'q':
+            print("Отмена.")
+            return
+
+        choice = int(choice)
+        selected_name = accounts[choice - 1]
+    except (ValueError, IndexError):
+        print("Неверный выбор.")
+        return
+
+    confirm = input(
+        f"Вы уверены, что хотите удалить аккаунт '{selected_name}' со всеми данными? (y/n): ").strip().lower()
+
+    if confirm == 'y':
+        account_path = os.path.join(ACCOUNTS_DIR, selected_name)
+        try:
+            shutil.rmtree(account_path)
+            print(f"[УСПЕХ] Аккаунт '{selected_name}' успешно удален.")
+        except Exception as e:
+            print(f"[ОШИБКА] Не удалось удалить аккаунт '{selected_name}': {e}")
+    else:
+        print("Удаление отменено.")
