@@ -3,7 +3,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ACCOUNTS_DIR = os.path.join(BASE_DIR, "infra", "accounts")
 
-NOISE_HEADLESS = True
+NOISE_HEADLESS = False
 
 NOISE_TOPICS = [
     # Быт, рецепты и садоводство
