@@ -7,8 +7,8 @@ from selenium.webdriver.common.keys import Keys
 
 from .driver import get_driver
 from .account_manager import get_account
-from .query_selector import get_query
-from config import NOISE_HEADLESS
+from .query_generator import get_query
+from config import NOISE_HEADLESS, RUSSIAN_ALPHABET
 from utils import stoppable_sleep
 
 keep_running = True
@@ -54,10 +54,8 @@ def start_noise_for_account():
 
     driver = get_driver(selected_name, headless=NOISE_HEADLESS)
 
-    russian_alphabet = "абвгдежзийклмнопрстуфхцчшщъыьэюя"
-
     try:
-        print("Типо шум")
+        #print("Типо шум")
         while keep_running:
 
             while len(driver.window_handles) > 2:
@@ -81,7 +79,7 @@ def start_noise_for_account():
                     if not keep_running: break
 
                     if char.isalpha() and random.random() < 0.07:
-                        wrong_char = random.choice(russian_alphabet)
+                        wrong_char = random.choice(RUSSIAN_ALPHABET)
                         search_box.send_keys(wrong_char)
                         time.sleep(random.uniform(0.15, 0.35))
                         search_box.send_keys(Keys.BACK_SPACE)
@@ -147,7 +145,6 @@ def start_noise_for_account():
                             f"    - Не понравилось, возвращаемся к результатам (возврат {returns_count + 1}/{max_returns})...")
 
                         if open_in_new_tab:
-                            print("cls!!!!!!!!!")
                             driver.close()
                             driver.switch_to.window(driver.window_handles[-1])
                         else:
