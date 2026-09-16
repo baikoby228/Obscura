@@ -11,7 +11,7 @@ from selenium.common.exceptions import TimeoutException, ElementClickIntercepted
 from .driver import get_driver
 from .account_manager import get_account
 from .query_generator import get_query
-from config import NOISE_HEADLESS, RUSSIAN_ALPHABET
+from config import RUSSIAN_ALPHABET
 from utils import stoppable_sleep
 
 keep_running = True
@@ -44,6 +44,7 @@ def simulate_reading(driver):
 
 def start_noise_for_account():
     global keep_running
+    keep_running = True
 
     selected_name = get_account()
     if not selected_name:
@@ -55,12 +56,12 @@ def start_noise_for_account():
     listener_thread = threading.Thread(target=monitor_for_stop, daemon=True)
     listener_thread.start()
 
-    driver = get_driver(selected_name, headless=NOISE_HEADLESS)
+    from config import HEADLESS_MODE
+    driver = get_driver(selected_name, headless=HEADLESS_MODE)
 
     try:
         #print("Типо шум")
         while keep_running:
-
             while len(driver.window_handles) > 2:
                 driver.switch_to.window(driver.window_handles[0])
                 driver.close()
