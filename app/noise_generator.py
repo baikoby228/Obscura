@@ -4,6 +4,9 @@ import threading
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException
 
 from .driver import get_driver
 from .account_manager import get_account
@@ -71,9 +74,30 @@ def start_noise_for_account():
             if not keep_running: break
 
             try:
+                elements = driver.find_elements(By.NAME, "q")
+                count = len(elements)
+                print(f'count = {count}!!!')
+
+                #search_box = driver.find_element(By.NAME, "q")
+                try:
+                    search_box = WebDriverWait(driver, 10).until(
+                        EC.visibility_of_element_located((By.NAME, "q"))
+                    )
+                    search_box.click()
+                    print("Успешно: Элемент найден и клик совершен!")
+
+                except TimeoutException:
+                    print("Ошибка: Элемент не появился за 10 секунд.")
+                except ElementClickInterceptedException:
+                    print("Ошибка: Элемент виден, но его перекрывает другой объект (например, баннер).")
+                except Exception as e:
+                    print(f"Произошла другая ошибка при клике: {e}")
+
+                stoppable_sleep(random.uniform(0.5, 1.0), lambda: keep_running)
+                driver.save_screenshot(f"screen_google_{int(time.time())}.png")
+
                 search_box = driver.find_element(By.NAME, "q")
-                search_box.click()
-                stoppable_sleep(random.uniform(0.3, 1.0), lambda: keep_running)
+                search_box.clear()
 
                 for char in query:
                     if not keep_running: break
