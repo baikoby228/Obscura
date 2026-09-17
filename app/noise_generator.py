@@ -11,7 +11,7 @@ from selenium.common.exceptions import TimeoutException, ElementClickIntercepted
 from .driver import get_driver
 from .account_manager import get_account
 from .query_generator import get_query
-from config import RUSSIAN_ALPHABET, HEADLESS_MODE
+from config import RUSSIAN_ALPHABET
 from utils import stoppable_sleep
 
 
@@ -34,6 +34,7 @@ def simulate_reading(driver, stop_event: threading.Event):
 
 def noise_worker(selected_name: str, stop_event: threading.Event):
     """Изолированный фоновый поток для выполнения сценария автокликкера"""
+    from config import HEADLESS_MODE
     driver = get_driver(selected_name, headless=HEADLESS_MODE)
 
     try:
