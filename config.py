@@ -1,7 +1,12 @@
 import os
+import sys
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ACCOUNTS_DIR = os.path.join(BASE_DIR, "infra", "accounts")
+if getattr(sys, 'frozen', False):
+    BASE_DIR = os.path.dirname(sys.executable)
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+ACCOUNTS_DIR = os.path.join(BASE_DIR, "accounts")
 
 HEADLESS_MODE = False
 

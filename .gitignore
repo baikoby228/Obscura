@@ -219,6 +219,6 @@ __marimo__/
 
 .idea
 
-infra/
+accounts/
 
 *.json
