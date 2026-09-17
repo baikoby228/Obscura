@@ -1,24 +1,24 @@
-import time
 import os
 import sys
 import json
+import threading
 
 
-def stoppable_sleep(seconds, check_flag_func):
-    end_time = time.time() + seconds
-    while check_flag_func() and time.time() < end_time:
-        time.sleep(1)
+def stoppable_sleep(seconds: float, stop_event: threading.Event) -> bool:
+    """
+    Засыпает на seconds секунд или просыпается раньше, если установлен stop_event.
+    Возвращает True, если пауза прошла полностью, и False, если получена команда остановки.
+    """
+    return not stop_event.wait(timeout=seconds)
 
 
 def get_base_dir() -> str:
-    """Возвращает корень приложения (работает и для .py, и для .exe)."""
     if getattr(sys, 'frozen', False):
         return os.path.dirname(sys.executable)
     return os.path.dirname(os.path.abspath(__file__))
 
 
 def clean_json_string(text: str) -> str:
-    """Очищает ответ ИИ от markdown-разметки (```json ... ```)."""
     text = text.strip()
     if text.startswith("```json"):
         text = text[7:]
@@ -30,10 +30,8 @@ def clean_json_string(text: str) -> str:
 
 
 def load_json_file(filename: str, default=None):
-    """Универсальное безопасное чтение JSON из файла."""
     if default is None:
         default = []
-
     file_path = os.path.join(get_base_dir(), filename)
     if os.path.exists(file_path):
         try:
@@ -45,7 +43,6 @@ def load_json_file(filename: str, default=None):
 
 
 def save_json_file(filename: str, data) -> bool:
-    """Универсальное безопасное сохранение данных в JSON."""
     file_path = os.path.join(get_base_dir(), filename)
     try:
         with open(file_path, "w", encoding="utf-8") as f:
