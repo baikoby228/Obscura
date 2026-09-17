@@ -13,7 +13,7 @@ HEADLESS_MODE = False
 def change_headless():
     global HEADLESS_MODE
     HEADLESS_MODE = not HEADLESS_MODE
-    print(f"режим изменён - {HEADLESS_MODE}")
+    #print(f"режим изменён - {HEADLESS_MODE}")
 
 RUSSIAN_ALPHABET = "абвгдежзийклмнопрстуфхцчшщъыьэюя"
 
