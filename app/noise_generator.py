@@ -77,7 +77,7 @@ def start_noise_for_account():
             try:
                 elements = driver.find_elements(By.NAME, "q")
                 count = len(elements)
-                print(f'count = {count}!!!')
+                #print(f'count = {count}!!!')
 
                 #search_box = driver.find_element(By.NAME, "q")
                 try:
@@ -95,7 +95,7 @@ def start_noise_for_account():
                     print(f"Произошла другая ошибка при клике: {e}")
 
                 stoppable_sleep(random.uniform(0.5, 1.0), lambda: keep_running)
-                driver.save_screenshot(f"screen_google_{int(time.time())}.png")
+                #driver.save_screenshot(f"screen_google_{int(time.time())}.png")
 
                 search_box = driver.find_element(By.NAME, "q")
                 search_box.clear()
