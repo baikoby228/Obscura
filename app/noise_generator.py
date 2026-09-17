@@ -9,7 +9,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException
 
 from .driver import get_driver
-from .account_manager import get_account
 from .query_generator import get_query
 from config import RUSSIAN_ALPHABET
 from utils import stoppable_sleep
@@ -22,7 +21,7 @@ def simulate_reading(driver, stop_event: threading.Event):
 
     end_read_time = time.time() + read_time
     while not stop_event.is_set() and time.time() < end_read_time:
-        driver.execute_script(f"window.scrollBy(0, {random.randint(100, 400)});")
+        driver.execute_script(f"window.scrollBy(0, {random.randint(100, 400)});\n")
         if not stoppable_sleep(random.uniform(2, 6), stop_event):
             break
 
@@ -179,7 +178,7 @@ def noise_worker(selected_name: str, stop_event: threading.Event):
 
                                 clicked_successfully = True
                                 break
-                            except:
+                            except Exception:
                                 if not stoppable_sleep(1, stop_event):
                                     break
 
@@ -200,41 +199,25 @@ def noise_worker(selected_name: str, stop_event: threading.Event):
             if not stoppable_sleep(wait, stop_event):
                 break
 
-    except KeyboardInterrupt:
-        print(f"\n[ШУМ] Остановлено вручную.")
+    except Exception as e:
+        print(f"\n[ШУМ] Непредвиденное завершение: {e}")
     finally:
         print(f"\n[ШУМ] Закрытие браузера для '{selected_name}'...")
-        driver.quit()
+        try:
+            driver.quit()
+        except Exception:
+            pass
 
 
-def start_noise_for_account():
-    """CLI-обёртка для запуска воркера с отслеживанием консольного ввода"""
-    selected_name = get_account()
-    if not selected_name:
-        return
-
-    stop_event = threading.Event()
-
+def start_noise_thread(selected_name: str, stop_event: threading.Event) -> threading.Thread:
+    """
+    Создает и запускает фоновый поток генерации шума для указанного аккаунта.
+    Возвращает объект Thread для отслеживания в GUI.
+    """
     worker_thread = threading.Thread(
         target=noise_worker,
         args=(selected_name, stop_event),
         daemon=True
     )
-
-    print(f"\n[ШУМ] Запуск '{selected_name}' в фоновом режиме...")
-    print(">>> Введите 'q', 'stop' или 'exit' и нажмите Enter для остановки <<<")
-
     worker_thread.start()
-
-    while worker_thread.is_alive():
-        try:
-            cmd = input()
-            if cmd.strip().lower() in ['q', 'stop', 'exit']:
-                print("\n[!] Получена команда на остановку. Завершаем работу...")
-                stop_event.set()
-                break
-        except (KeyboardInterrupt, EOFError):
-            stop_event.set()
-            break
-
-    worker_thread.join()
+    return worker_thread

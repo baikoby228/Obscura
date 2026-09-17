@@ -4,85 +4,50 @@ import shutil
 from .driver import get_driver
 from config import ACCOUNTS_DIR
 
+
 def list_accounts():
     """Возвращает список созданных папок аккаунтов"""
     if not os.path.exists(ACCOUNTS_DIR):
         return []
     return [d for d in os.listdir(ACCOUNTS_DIR) if os.path.isdir(os.path.join(ACCOUNTS_DIR, d))]
 
-def get_account():
-    """Выбор аккаунта и запуск шума в фоне"""
-    accounts = list_accounts()
 
-    if not accounts:
-        print("\n[!] Нет добавленных аккаунтов. Сначала добавьте аккаунт (пункт 1).")
-        return
+def launch_account_login(name):
+    """
+    Открывает окно браузера для авторизации.
+    Возвращает объект драйвера.
+    GUI должен сохранить его и вызвать driver.quit() по нажатию кнопки "Готово/Сохранить".
+    """
+    if not name or not name.strip():
+        raise ValueError("Имя аккаунта не может быть пустым.")
 
-    print("\nДоступные аккаунты:")
-    for i, name in enumerate(accounts, 1):
-        print(f"{i}. {name}")
-
-    try:
-        choice = int(input("\nВыберите номер аккаунта для запуска шума: "))
-        selected_name = accounts[choice - 1]
-    except (ValueError, IndexError):
-        print("Неверный выбор.")
-        return
-
-    return selected_name
-
-def add_account():
-    """Регистрация нового профиля (видимое окно)"""
-    name = input("\nВведите имя для этого аккаунта (например, 'personal' или 'mail1'): ").strip()
-    if not name:
-        print("Имя не может быть пустым.")
-        return
-
-    print(f"\n[ВХОД] Открываю окно для аккаунта '{name}'...")
+    name = name.strip()
     driver = get_driver(name, headless=False)
 
     try:
         driver.get("https://accounts.google.com/ServiceLogin")
-        print(f"ВНИМАНИЕ: Войдите в Google аккаунт для профиля '{name}'.")
-        input("После входа нажмите ENTER здесь, чтобы сохранить и закрыть...")
-    finally:
+        return driver
+    except Exception as e:
         driver.quit()
-        print(f"Аккаунт '{name}' успешно добавлен.")
+        raise RuntimeError(f"Ошибка при открытии страницы входа: {e}")
 
 
-def remove_account():
-    """Удаление существующего профиля"""
-    accounts = list_accounts()
+def remove_account(name):
+    """
+    Удаляет существующий профиль.
+    GUI должен сам запрашивать подтверждение (например, через MessageBox)
+    до вызова этой функции.
+    """
+    if not name or not name.strip():
+        raise ValueError("Имя аккаунта не указано.")
 
-    if not accounts:
-        print("\n[!] Нет добавленных аккаунтов для удаления.")
-        return
+    name = name.strip()
+    account_path = os.path.join(ACCOUNTS_DIR, name)
 
-    print("\nДоступные аккаунты для удаления:")
-    for i, name in enumerate(accounts, 1):
-        print(f"{i}. {name}")
+    if not os.path.exists(account_path):
+        raise FileNotFoundError(f"Аккаунт '{name}' не найден.")
 
     try:
-        choice = input("\nВыберите номер аккаунта для удаления (или 'q' для отмены): ").strip()
-        if choice.lower() == 'q':
-            print("Отмена.")
-            return
-
-        choice = int(choice)
-        selected_name = accounts[choice - 1]
-    except (ValueError, IndexError):
-        print("Неверный выбор.")
-        return
-
-    confirm = input(
-        f"Вы уверены, что хотите удалить аккаунт '{selected_name}' со всеми данными? (y/n): ").strip().lower()
-
-    if confirm == 'y':
-        account_path = os.path.join(ACCOUNTS_DIR, selected_name)
-        try:
-            shutil.rmtree(account_path)
-            print(f"[УСПЕХ] Аккаунт '{selected_name}' успешно удален.")
-        except Exception as e:
-            print(f"[ОШИБКА] Не удалось удалить аккаунт '{selected_name}': {e}")
-    else:
-        print("Удаление отменено.")
+        shutil.rmtree(account_path)
+    except Exception as e:
+        raise RuntimeError(f"Не удалось удалить аккаунт '{name}': {e}")
