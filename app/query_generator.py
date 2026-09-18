@@ -6,9 +6,10 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 from config import _FALLBACK_QUERIES
-from utils import clean_json_string, load_json_file, save_json_file
+from utils import get_base_dir, clean_json_string, load_json_file, save_json_file
 
-load_dotenv()
+env_path = os.path.join(get_base_dir(), ".env")
+load_dotenv(dotenv_path=env_path)
 
 AI_API_KEY = os.getenv("AI_API_KEY")
 AI_BASE_URL = "https://openrouter.ai/api/v1"
@@ -68,6 +69,7 @@ def _fetch_new_queries_from_ai(count=15) -> list[str]:
                 {"role": "user", "content": f"Сгенерируй {count} запросов в виде JSON-массива строк."}
             ],
             temperature=1.0,
+            max_tokens = 20000
         )
 
         raw_text = response.choices[0].message.content
